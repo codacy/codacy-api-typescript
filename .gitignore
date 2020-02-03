@@ -1,0 +1,17 @@
+# Generic
+temp
+*.log
+.DS_Store
+
+# Development
+.vscode
+
+# Tools
+node_modules/
+
+# Project
+dist/
+lib/
+esm/
+
+.env

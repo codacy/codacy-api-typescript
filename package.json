@@ -1,0 +1,50 @@
+{
+  "name": "@codacy/api-typescript",
+  "version": "1.0.0",
+  "description": "Codacy API client for Typescript",
+  "main": "./dist/codacy-api-client.js",
+  "module": "./esm/client.js",
+  "types": "./esm/client.d.ts",
+  "scripts": {
+    "build": "tsc && rollup -c rollup.config.js && npm run minify",
+    "minify": "uglifyjs -c -m --comments --source-map \"content='./dist/codacy-api-client.js.map'\" -o ./dist/codacy-api-client.min.js ./dist/codacy-api-client.js",
+    "prepack": "npm install && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codacy/codacy-api-typescript.git"
+  },
+  "author": "Codacy",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/codacy/codacy-api-typescript/issues"
+  },
+  "homepage": "https://github.com/codacy/codacy-api-typescript#readme",
+  "dependencies": {
+    "@azure/ms-rest-js": "^2.0.4",
+    "tslib": "^1.10.0"
+  },
+  "devDependencies": {
+    "prettier": "^1.19.1",
+    "typescript": "^3.7.5",
+    "rollup": "^1.18.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-sourcemaps": "^0.4.2",
+    "uglify-js": "^3.6.0"
+  },
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map",
+    "esm/**/*.js",
+    "esm/**/*.js.map",
+    "esm/**/*.d.ts",
+    "esm/**/*.d.ts.map",
+    "src/**/*.ts",
+    "README.md",
+    "rollup.config.js",
+    "tsconfig.json"
+  ],
+  "sideEffects": false
+}
