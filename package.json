@@ -8,6 +8,8 @@
   "scripts": {
     "build": "tsc && rollup -c rollup.config.js && npm run minify",
     "minify": "uglifyjs -c -m --comments --source-map \"content='./dist/codacy-api-client.js.map'\" -o ./dist/codacy-api-client.min.js ./dist/codacy-api-client.js",
+    "check-types": "tsc --noEmit",
+    "check-types:watch": "npm run check-types -- --watch",    
     "prepack": "npm install && npm run build"
   },
   "repository": {
