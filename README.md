@@ -1,13 +1,33 @@
 # codacy-api-typescript
 Typescript wrapper for the Codacy API
 
-## Usage
-### Generate the code
+## Requirements
+If you're running Linux
 ```bash
-API_VERSION=[version] .\generate.sh
+sudo apt-get install libunwind8
 ```
 
+## Usage
+### Generate the code
+To run the entire process:
+```bash
+npm ci
+```
+
+To fetch the current version of the API:
+```bash
+npm run fetch-api
+```
+
+To generate the code:
+```bash
+npm run generate
+```
+
+
+
 ### Mock an API server
+Current API mock-server doesn't support a `basePath`, so you need to fetch the API, comment it, and then generate the client. Now you can mock an API server for development or testing purposes.
 ```bash
 .\mock-api.sh
 ```

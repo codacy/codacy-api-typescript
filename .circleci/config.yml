@@ -20,11 +20,8 @@ jobs:
             node -v
             npm -v
       - run:
-          name: Run CI
+          name: Install dependencies and generate
           command: npm ci
-      - run:
-          name: Download dependencies
-          command: npm run prepare
       - run:
           name: Typecheck
           command: |

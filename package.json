@@ -12,8 +12,9 @@
     "check-types:watch": "npm run check-types -- --watch",
     "prepack": "npm install && npm run build",
     "lint-md": "remark .",
+    "fetch-api": "curl https://dl.bintray.com/codacy/Binaries/5.12.0/swagger.yaml -o api-swagger.yaml",
     "generate": "autorest --typescript --model-date-time-as-string=false --input-file=./api-swagger.yaml --output-folder=./",
-    "prepare": "npm run generate"
+    "prepare": "npm run fetch-api && npm run generate"
   },
   "repository": {
     "type": "git",
