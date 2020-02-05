@@ -6,14 +6,14 @@ orbs:
 jobs:
   build_package:
     docker:
-      - image: node:12-buster
+      - image: circleci/node:erbium
     working_directory: ~/workdir
     steps:
       - attach_workspace:
           at: ~/workdir
       - run:
           name: update-npm
-          command: 'sudo npm install -g npm@latest'          
+          command: sudo npm install -g npm@latest
       - run:
           name: Check current version of node and npm
           command: |
