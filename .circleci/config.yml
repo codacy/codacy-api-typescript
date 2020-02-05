@@ -2,12 +2,12 @@ version: 2.1
 
 orbs:
   codacy: codacy/base@2.0.1
-          
+
 jobs:
   build_package:
     docker:
       - image: circleci/node:erbium
-    working_directory: ~/workdir
+    working_directory: ~/workdir/.aws/src
     steps:
       - attach_workspace:
           at: ~/workdir
@@ -19,6 +19,9 @@ jobs:
       - run:
           name: Download dependencies
           command: npm install
+      - run:
+          name: Install autorest locally
+          command: npm install -g autorest
       - run:
           name: Generate the code
           command: ./generate.sh
