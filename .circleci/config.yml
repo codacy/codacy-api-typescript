@@ -12,16 +12,13 @@ jobs:
       - attach_workspace:
           at: ~/workdir
       - run:
-          name: update-npm
-          command: sudo npm install -g npm@latest
-      - run:
           name: Check current version of node and npm
           command: |
             node -v
             npm -v
       - run:
           name: Download dependencies
-          command: npm install
+          command: sudo npm install
       - run:
           name: Typecheck
           command: |
