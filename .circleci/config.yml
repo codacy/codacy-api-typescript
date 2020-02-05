@@ -12,16 +12,19 @@ jobs:
       - attach_workspace:
           at: ~/workdir
       - run:
+          name: Install Autorest dependencies
+          command: sudo apt-get install libunwind8
+      - run:
           name: Check current version of node and npm
           command: |
             node -v
             npm -v
       - run:
           name: Run CI
-          command: sudo npm ci
+          command: npm ci
       - run:
           name: Download dependencies
-          command: sudo npm run prepare
+          command: npm run prepare
       - run:
           name: Typecheck
           command: |
