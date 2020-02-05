@@ -21,7 +21,7 @@ jobs:
           command: sudo npm ci
       - run:
           name: Download dependencies
-          command: npm run prepare
+          command: sudo npm run prepare
       - run:
           name: Typecheck
           command: |
