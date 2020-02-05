@@ -17,8 +17,11 @@ jobs:
             node -v
             npm -v
       - run:
+          name: Run CI
+          command: sudo npm ci
+      - run:
           name: Download dependencies
-          command: sudo npm install
+          command: npm run prepare
       - run:
           name: Typecheck
           command: |
