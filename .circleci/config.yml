@@ -20,12 +20,6 @@ jobs:
           name: Download dependencies
           command: npm install
       - run:
-          name: Install autorest locally
-          command: npm install autorest --save-dev
-      - run:
-          name: Generate the code
-          command: ./generate.sh
-      - run:
           name: Typecheck
           command: |
             npm run check-types

@@ -11,7 +11,9 @@
     "check-types": "tsc --noEmit",
     "check-types:watch": "npm run check-types -- --watch",
     "prepack": "npm install && npm run build",
-    "lint-md": "remark ."
+    "lint-md": "remark .",
+    "generate": "autorest --typescript --model-date-time-as-string=false --input-file=./api-swagger.yaml --output-folder=./",
+    "prepare": "npm run generate"
   },
   "repository": {
     "type": "git",
@@ -35,11 +37,14 @@
     "rollup": "^1.18.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-sourcemaps": "^0.4.2",
-    "uglify-js": "^3.6.0"
+    "uglify-js": "^3.6.0",
+    "autorest": "^2.0.4413"
   },
   "remarkConfig": {
-    "plugins": ["remark-preset-lint-recommended"]
-  },  
+    "plugins": [
+      "remark-preset-lint-recommended"
+    ]
+  },
   "files": [
     "dist/**/*.js",
     "dist/**/*.js.map",
