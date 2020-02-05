@@ -7,7 +7,7 @@ jobs:
   build_package:
     docker:
       - image: circleci/node:erbium
-    working_directory: ~/workdir/.aws/src
+    working_directory: ~/workdir
     steps:
       - attach_workspace:
           at: ~/workdir
@@ -21,7 +21,7 @@ jobs:
           command: npm install
       - run:
           name: Install autorest locally
-          command: npm install -g autorest
+          command: npm install autorest --save-dev
       - run:
           name: Generate the code
           command: ./generate.sh
