@@ -9,7 +9,6 @@ references:
       branches:
         only:
           - master
-          - ar-first-commit-adjustments
           
 jobs:
   build_package:
