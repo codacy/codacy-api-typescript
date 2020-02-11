@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "apiVersion": "5.12.0",
   "description": "Codacy API client for Typescript",
-  "main": "./dist/codacy-api-client.js",
   "module": "./lib/client.js",
   "types": "./lib/client.d.ts",
   "scripts": {
@@ -30,6 +29,8 @@
     "tslib": "^1.10.0"
   },
   "devDependencies": {
+    "@types/babel__core": "^7.1.3",
+    "@types/babel__template": "^7.0.2",
     "remark-cli": "^7.0.1",
     "remark-preset-lint-recommended": "^3.0.3",
     "prettier": "^1.19.1",
