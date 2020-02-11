@@ -26,10 +26,11 @@ jobs:
           command: |
             node -v
             npm -v
-            npm ls
       - run:
           name: Install dependencies and generate
-          command: npm ci
+          command: |
+            npm ci
+            npm ls
       - run:
           name: Typecheck
           command: |
