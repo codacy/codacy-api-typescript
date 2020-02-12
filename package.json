@@ -42,5 +42,6 @@
       "remark-preset-lint-recommended"
     ]
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "files": [ "lib" ]
 }
