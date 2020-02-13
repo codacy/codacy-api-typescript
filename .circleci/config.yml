@@ -1,0 +1,93 @@
+version: 2.1
+
+orbs:
+  codacy: codacy/base@2.0.1
+
+references:
+  release_filter: &release_filter
+    filters:
+      branches:
+        only:
+          - master
+          
+jobs:
+  build_package:
+    docker:
+      - image: circleci/node:erbium
+    working_directory: ~/workdir
+    steps:
+      - attach_workspace:
+          at: ~/workdir
+      - run:
+          name: Install Autorest dependencies
+          command: sudo apt-get install libunwind8
+      - run:
+          name: Check current version of node and npm
+          command: |
+            node -v
+            npm -v
+      - run:
+          name: Install dependencies and generate
+          command: |
+            npm ci
+            npm ls
+      - run:
+          name: Typecheck
+          command: |
+            npm run check-types
+      - run:
+          name: Build packages
+          command: npm run build
+      - persist_to_workspace:
+          root: ~/workdir
+          paths:
+            - lib/
+            - node_modules/  
+
+  publish_packages:
+    docker:
+      - image: circleci/node:erbium
+    working_directory: ~/workdir
+    steps:
+      - attach_workspace:
+          at: ~/workdir
+      - run:
+          name: Install Autorest dependencies
+          command: sudo apt-get install libunwind8          
+      - run:
+          name: Check current version of node and npm
+          command: |
+            node -v
+            yarn -v   
+      - run:
+          name: Setup npm credentials
+          command: |
+            npm config set @codacy:registry https://registry.npmjs.org/
+            npm config set _authToken $NPM_TOKEN
+            npm config set access public
+            npm config set save-exact true
+      - run:
+          name: Publish packages
+          command: |
+            # Update version in packages to publish
+            npm version --no-git-tag-version --no-commit-hooks "$(cat .version)"
+            # Publish package versions to npmjs.org
+            npm publish
+
+workflows:
+  compile_deploy:
+    jobs:
+      - codacy/checkout_and_version
+      - build_package:
+          requires:
+            - codacy/checkout_and_version
+      - codacy/tag_version:
+          name: tag_version
+          context: CodacyAWS
+          requires:
+            - build_package            
+      - publish_packages:
+          <<: *release_filter
+          requires:
+            - tag_version
+          context: CodacyNPM

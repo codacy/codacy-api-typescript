@@ -1,14 +1,18 @@
 {
   "name": "@codacy/api-typescript",
-  "version": "1.0.0",
+  "version": "0.0.1",
+  "apiVersion": "5.12.0",
   "description": "Codacy API client for Typescript",
-  "main": "./dist/codacy-api-client.js",
-  "module": "./esm/client.js",
-  "types": "./esm/client.d.ts",
+  "module": "./lib/client.js",
+  "types": "./lib/client.d.ts",
   "scripts": {
-    "build": "tsc && rollup -c rollup.config.js && npm run minify",
-    "minify": "uglifyjs -c -m --comments --source-map \"content='./dist/codacy-api-client.js.map'\" -o ./dist/codacy-api-client.min.js ./dist/codacy-api-client.js",
-    "prepack": "npm install && npm run build"
+    "build": "tsc",
+    "check-types": "tsc --noEmit",
+    "check-types:watch": "npm run check-types -- --watch",
+    "lint-md": "remark .",
+    "fetch-api": "curl https://dl.bintray.com/codacy/Binaries/$npm_package_apiVersion/swagger.yaml -o api-swagger.yaml",
+    "generate": "autorest --typescript --model-date-time-as-string=false --input-file=./api-swagger.yaml --output-folder=./",
+    "prepare": "npm run fetch-api && npm run generate"
   },
   "repository": {
     "type": "git",
@@ -25,26 +29,19 @@
     "tslib": "^1.10.0"
   },
   "devDependencies": {
+    "@types/babel__core": "^7.1.3",
+    "@types/babel__template": "^7.0.2",
+    "remark-cli": "^7.0.1",
+    "remark-preset-lint-recommended": "^3.0.3",
     "prettier": "^1.19.1",
     "typescript": "^3.7.5",
-    "rollup": "^1.18.0",
-    "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-sourcemaps": "^0.4.2",
-    "uglify-js": "^3.6.0"
+    "autorest": "^2.0.4413"
   },
-  "files": [
-    "dist/**/*.js",
-    "dist/**/*.js.map",
-    "dist/**/*.d.ts",
-    "dist/**/*.d.ts.map",
-    "esm/**/*.js",
-    "esm/**/*.js.map",
-    "esm/**/*.d.ts",
-    "esm/**/*.d.ts.map",
-    "src/**/*.ts",
-    "README.md",
-    "rollup.config.js",
-    "tsconfig.json"
-  ],
-  "sideEffects": false
+  "remarkConfig": {
+    "plugins": [
+      "remark-preset-lint-recommended"
+    ]
+  },
+  "sideEffects": false,
+  "files": [ "lib" ]
 }
