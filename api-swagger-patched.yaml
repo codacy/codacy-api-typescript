@@ -1,0 +1,398 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: Website API
+  description: >-
+    Shiny new Codacy API
+  contact:
+    name: Codacy Team
+    email: code@codacy.com
+    url: https://www.codacy.com
+  license:
+    name: Codacy. All rights reserved
+    url: https://www.codacy.com
+schemes:
+  - http
+host: app.codacy.com
+basePath: /v3
+paths:
+  /user:
+    get:
+      tags:
+        - account
+      summary: Get the authenticated user
+      description: Get the authenticated user
+      operationId: getUser
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: accountId
+          description: 'AccountId'
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: 'Successful operation'
+          schema:
+            $ref: '#/definitions/User'
+        '401':
+          description: 'Unauthorized'
+          x-ms-error-response: true
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: 'Internal Server Error'
+          x-ms-error-response: true
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      tags:
+        - account
+      operationId: deleteUser
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: "ReasonsToDelete"
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+        - in: header
+          name: accountId
+          description: 'AccountId'
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: 'Successful operation'
+        '401':
+          description: 'Unauthorized'
+          x-ms-error-response: true
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: 'Internal Server Error'
+          x-ms-error-response: true
+          schema:
+            $ref: '#/definitions/Error'
+    patch:
+      tags:
+        - account
+      operationId: patchUser
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: "UserBody"
+          required: true
+          schema:
+            $ref: "#/definitions/UserBody"
+        - in: header
+          name: accountId
+          description: 'AccountId'
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: 'Successful operation'
+          schema:
+            $ref: '#/definitions/User'
+        '401':
+          description: 'Unauthorized'
+          x-ms-error-response: true
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: 'Internal Server Error'
+          x-ms-error-response: true
+          schema:
+            $ref: '#/definitions/Error'
+
+
+  /user/orgs:
+    get:
+      tags:
+        - account
+      summary: List organizations for the authenticated user
+      description: List organizations for the authenticated user
+      operationId: listUserOrganizations
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: accountId
+          description: 'AccountId'
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: 'Successful operation'
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Organization'
+        '401':
+          description: 'Unauthorized'
+          x-ms-error-response: true
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: 'Internal Server Error'
+          x-ms-error-response: true
+          schema:
+            $ref: '#/definitions/Error'
+
+  /user/integrations:
+    get:
+      tags:
+        - account
+      summary: List integrations for the authenticated user
+      description: List integrations for the authenticated user
+      operationId: listUserIntegrations
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: accountId
+          description: 'Integration Provider'
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: 'Successful operation'
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Integration'
+        '401':
+          description: 'Not Found'
+          x-ms-error-response: true
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: 'Internal Server Error'
+          x-ms-error-response: true
+          schema:
+            $ref: '#/definitions/Error'
+
+  /user/integrations/{provider}:
+    delete:
+      tags:
+        - account
+      operationId: deleteIntegration
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: provider
+          description: 'Integration Provider'
+          required: true
+          type: string
+        - in: header
+          name: accountId
+          description: 'AccountId'
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: 'Successful operation'
+        '401':
+          description: 'Unauthorized'
+          x-ms-error-response: true
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: 'Not Found'
+          x-ms-error-response: true
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: 'Internal Server Error'
+          x-ms-error-response: true
+          schema:
+            $ref: '#/definitions/Error'
+
+  /health:
+    get:
+      tags:
+        - health
+      summary: Health check endpoint
+      description: Health check endpoint
+      operationId: health
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: 'Successful operation'
+          schema:
+            $ref: '#/definitions/HealthCheck'
+          examples:
+            application/json: [{ message: "Hello, it's me" }]
+  /hello:
+    get:
+      tags:
+        - health
+      summary: Greeter endpoint
+      description: Greeter endpoint
+      operationId: hello
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: string
+
+definitions:
+  HealthCheck:
+    type: object
+    properties:
+      message:
+        type: string
+    example:
+      message: "Hello, it's me"
+
+  User:
+    type: object
+    required:
+      - username
+      - mainEmail
+      - otherEmails
+      - isAdmin
+      - isActive
+      - created
+    properties:
+      username:
+        type: string
+      name:
+        type: string
+      mainEmail:
+        type: string
+      otherEmails:
+        type: array
+        items:
+          type: string
+      isAdmin:
+        type: boolean
+      isActive:
+        type: boolean
+      created:
+        type: integer
+        format: int64
+        x-scala-type: java.time.Instant
+    example:
+      username: "FooBar"
+      name: "Foo"
+      mainEmail: "main@codacy.com"
+      otherEmails: ["foo@bar.com"]
+      isAdmin: false
+      isActive: true
+      created: "2019-05-07T14:29:13.430Z"
+
+  UserBody:
+    type: object
+    properties:
+      username:
+        type: string
+      name:
+        type: string
+    example:
+      username: "FooBar"
+      name: "Foo"
+
+  Organization:
+    type: object
+    required:
+      - name
+      - billingEmail
+      - provider
+    properties:
+      name:
+        type: string
+      billingEmail:
+        type: string
+      avatar:
+        type: string
+      createdAt:
+        type: integer
+        format: int64
+        x-scala-type: java.time.Instant
+      provider:
+        $ref: '#/definitions/Provider'
+      joinMode:
+        $ref: '#/definitions/JoinMode'
+    example:
+      name: "FooOrganization"
+      billingEmail: "billing@codacy.com"
+      avatar: "someRandomLink.com"
+      created: "2019-05-07T14:29:13.430Z"
+      provider: "gh"
+      joinMode: "auto"
+
+  Integration:
+    type: object
+    required:
+      - name
+      - lastTimeAuthenticated
+    properties:
+      name:
+        type: string
+      lastTimeAuthenticated:
+        type: integer
+        format: int64
+        x-scala-type: java.time.Instant
+    example:
+      name: "FooOrganization"
+      lastTimeAuthenticated: "2019-05-07T14:29:13.430Z"
+
+  Provider:
+    type: string
+    enum:
+      - manual
+      - bb
+      - bbe
+      - gh
+      - ghe
+      - gl
+      - gle
+
+  JoinMode:
+    type: string
+    enum:
+      - auto
+      - adminAuto
+      - request
+
+  ErrorCode:
+    type: string
+    enum:
+      - BadRequest
+      - Unauthorized
+      - NotFound
+      - InternalServerError
+      - NotImplemented
+
+  Error:
+    type: object
+    required:
+      - message
+      - code
+    properties:
+      message:
+        type: string
+      code:
+        $ref: '#/definitions/ErrorCode'
+
