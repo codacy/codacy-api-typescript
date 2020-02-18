@@ -1,6 +1,7 @@
 swagger: '2.0'
+
 info:
-  version: 1.0.0
+  version: 3.0.0
   title: Website API
   description: >-
     Shiny new Codacy API
@@ -11,10 +12,31 @@ info:
   license:
     name: Codacy. All rights reserved
     url: https://www.codacy.com
+
 schemes:
   - http
+
 host: app.codacy.com
+
 basePath: /v3
+
+produces:
+  - application/json
+consumes:
+  - application/json
+
+# This is the one of the differences to the yaml on codacy website.
+# Had to move this to the path definition since it breaks the client spec otherwise
+# parameters:
+#   providerParam: &providerParam
+#     in: path
+#     name: provider
+#     description: "Git Provider"
+#     required: true
+#     type: string
+#     enum: [gh, ghe, gl, gle, bb, bbe]
+#     x-example: gh
+
 paths:
   /user:
     get:
@@ -23,38 +45,25 @@ paths:
       summary: Get the authenticated user
       description: Get the authenticated user
       operationId: getUser
-      produces:
-        - application/json
-      parameters:
-        - in: header
-          name: accountId
-          description: 'AccountId'
-          required: true
-          type: integer
-          format: int64
       responses:
         '200':
           description: 'Successful operation'
           schema:
-            $ref: '#/definitions/User'
+            $ref: '#/definitions/UserResponse'
         '401':
           description: 'Unauthorized'
           x-ms-error-response: true
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/ApiError'
         '500':
           description: 'Internal Server Error'
           x-ms-error-response: true
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/ApiError'
     delete:
       tags:
         - account
       operationId: deleteUser
-      produces:
-        - application/json
-      consumes:
-        - application/json
       parameters:
         - in: body
           name: "ReasonsToDelete"
@@ -63,60 +72,44 @@ paths:
             type: array
             items:
               type: string
-        - in: header
-          name: accountId
-          description: 'AccountId'
-          required: true
-          type: integer
-          format: int64
       responses:
-        '200':
+        '204':
           description: 'Successful operation'
         '401':
           description: 'Unauthorized'
           x-ms-error-response: true
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/ApiError'
         '500':
           description: 'Internal Server Error'
           x-ms-error-response: true
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/ApiError'
     patch:
       tags:
         - account
       operationId: patchUser
-      produces:
-        - application/json
-      consumes:
-        - application/json
       parameters:
         - in: body
           name: "UserBody"
           required: true
           schema:
             $ref: "#/definitions/UserBody"
-        - in: header
-          name: accountId
-          description: 'AccountId'
-          required: true
-          type: integer
-          format: int64
       responses:
         '200':
           description: 'Successful operation'
           schema:
-            $ref: '#/definitions/User'
+            $ref: '#/definitions/UserResponse'
         '401':
           description: 'Unauthorized'
           x-ms-error-response: true
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/ApiError'
         '500':
           description: 'Internal Server Error'
           x-ms-error-response: true
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/ApiError'
 
 
   /user/orgs:
@@ -126,32 +119,21 @@ paths:
       summary: List organizations for the authenticated user
       description: List organizations for the authenticated user
       operationId: listUserOrganizations
-      produces:
-        - application/json
-      parameters:
-        - in: header
-          name: accountId
-          description: 'AccountId'
-          required: true
-          type: integer
-          format: int64
       responses:
         '200':
           description: 'Successful operation'
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/Organization'
+              $ref: '#/definitions/OrganizationListResponse'
         '401':
           description: 'Unauthorized'
           x-ms-error-response: true
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/ApiError'
         '500':
           description: 'Internal Server Error'
           x-ms-error-response: true
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/ApiError'
 
   /user/integrations:
     get:
@@ -160,70 +142,52 @@ paths:
       summary: List integrations for the authenticated user
       description: List integrations for the authenticated user
       operationId: listUserIntegrations
-      produces:
-        - application/json
-      parameters:
-        - in: header
-          name: accountId
-          description: 'Integration Provider'
-          required: true
-          type: integer
-          format: int64
       responses:
         '200':
           description: 'Successful operation'
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/Integration'
+              $ref: '#/definitions/IntegrationListResponse'
         '401':
           description: 'Not Found'
           x-ms-error-response: true
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/ApiError'
         '500':
           description: 'Internal Server Error'
           x-ms-error-response: true
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/ApiError'
 
   /user/integrations/{provider}:
     delete:
       tags:
         - account
       operationId: deleteIntegration
-      produces:
-        - application/json
       parameters:
         - in: path
           name: provider
-          description: 'Integration Provider'
+          description: "Git Provider"
           required: true
           type: string
-        - in: header
-          name: accountId
-          description: 'AccountId'
-          required: true
-          type: integer
-          format: int64
+          enum: [gh, ghe, gl, gle, bb, bbe]
+          x-example: gh
       responses:
-        '200':
+        '204':
           description: 'Successful operation'
         '401':
           description: 'Unauthorized'
-          x-ms-error-response: true
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/ApiError'
         '404':
           description: 'Not Found'
           x-ms-error-response: true
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/ApiError'
         '500':
           description: 'Internal Server Error'
           x-ms-error-response: true
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/ApiError'
 
   /health:
     get:
@@ -232,29 +196,13 @@ paths:
       summary: Health check endpoint
       description: Health check endpoint
       operationId: health
-      produces:
-        - application/json
       responses:
         '200':
           description: 'Successful operation'
           schema:
-            $ref: '#/definitions/HealthCheck'
+            $ref: '#/definitions/HealthCheckResponse'
           examples:
             application/json: [{ message: "Hello, it's me" }]
-  /hello:
-    get:
-      tags:
-        - health
-      summary: Greeter endpoint
-      description: Greeter endpoint
-      operationId: hello
-      produces:
-        - application/json
-      responses:
-        '200':
-          description: Successful operation
-          schema:
-            type: string
 
 definitions:
   HealthCheck:
@@ -264,6 +212,14 @@ definitions:
         type: string
     example:
       message: "Hello, it's me"
+
+  HealthCheckResponse:
+    type: object
+    required:
+      - data
+    properties:
+      data:
+        $ref: "#/definitions/HealthCheck"
 
   User:
     type: object
@@ -301,6 +257,14 @@ definitions:
       isAdmin: false
       isActive: true
       created: "2019-05-07T14:29:13.430Z"
+
+  UserResponse:
+    type: object
+    required:
+      - data
+    properties:
+      data:
+        $ref: "#/definitions/User"
 
   UserBody:
     type: object
@@ -342,6 +306,16 @@ definitions:
       provider: "gh"
       joinMode: "auto"
 
+  OrganizationListResponse:
+    type: object
+    required:
+      - data
+    properties:
+      data:
+        type: array
+        items:
+          $ref: "#/definitions/Organization"
+
   Integration:
     type: object
     required:
@@ -357,6 +331,16 @@ definitions:
     example:
       name: "FooOrganization"
       lastTimeAuthenticated: "2019-05-07T14:29:13.430Z"
+
+  IntegrationListResponse:
+    type: object
+    required:
+      - data
+    properties:
+      data:
+        type: array
+        items:
+          $ref: "#/definitions/Integration"
 
   Provider:
     type: string
@@ -376,16 +360,15 @@ definitions:
       - adminAuto
       - request
 
-  ErrorCode:
+  ApiErrorCode:
     type: string
     enum:
-      - BadRequest
       - Unauthorized
+      - Forbidden
       - NotFound
       - InternalServerError
-      - NotImplemented
 
-  Error:
+  ApiError:
     type: object
     required:
       - message
@@ -394,5 +377,24 @@ definitions:
       message:
         type: string
       code:
-        $ref: '#/definitions/ErrorCode'
+        $ref: "#/definitions/ApiErrorCode"
 
+  UnauthorizedResponse: #401
+    description: Unauthorized
+    allOf:
+      - $ref: "#/definitions/ApiError"
+
+  ForbiddenResponse: #403
+    description: Forbidden
+    allOf:
+      - $ref: "#/definitions/ApiError"
+
+  NotFoundResponse: #404
+    description: Not found
+    allOf:
+      - $ref: "#/definitions/ApiError"
+
+  InternalServerErrorResponse: #500
+    description: Internal Server Error
+    allOf:
+      - $ref: "#/definitions/ApiError"
