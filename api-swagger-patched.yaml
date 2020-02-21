@@ -325,8 +325,7 @@ definitions:
       name:
         type: string
       lastTimeAuthenticated:
-        type: integer
-        format: int64
+        type: string
         x-scala-type: java.time.Instant
     example:
       name: "FooOrganization"
