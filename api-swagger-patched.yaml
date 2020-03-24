@@ -79,7 +79,8 @@ definitions:
       isActive:
         type: boolean
       created:
-        type: string
+        type: integer
+        format: int64
         x-scala-type: java.time.Instant
     example:
       username: "FooBar"
@@ -123,7 +124,8 @@ definitions:
       avatar:
         type: string
       createdAt:
-        type: string
+        type: integer
+        format: int64
         x-scala-type: java.time.Instant
       provider:
         $ref: '#/definitions/Provider'
@@ -158,7 +160,8 @@ definitions:
       provider:
         $ref: "#/definitions/AccountProvider"
       lastTimeAuthenticated:
-        type: string
+        type: integer
+        format: int64
         x-scala-type: java.time.Instant
     example:
       name: "FooOrganization"
@@ -270,14 +273,14 @@ parameters:
     description: Number of items to return.
     x-example: 20
 
-  # accountProviderParam: &accountProviderParam
-  #   in: path
-  #   name: provider
-  #   description: "Account Provider"
-  #   required: true
-  #   type: string
-  #   enum: *accountProviderEnum
-  #   x-example: github
+  accountProviderParam: &accountProviderParam
+    in: path
+    name: provider
+    description: "Account Provider"
+    required: true
+    type: string
+    enum: *accountProviderEnum
+    x-example: github
 
 paths:
   /user:
@@ -422,13 +425,7 @@ paths:
         - account
       operationId: deleteIntegration
       parameters:
-        - in: path
-          name: provider
-          description: "Account Provider"
-          required: true
-          type: string
-          enum: *accountProviderEnum
-          x-example: github
+        - *accountProviderParam
       responses:
         '204':
           description: 'Successful operation'
