@@ -23,7 +23,7 @@
     "check-types": "tsc --noEmit",
     "check-types:watch": "npm run check-types -- --watch",
     "fetch-api": "curl https://dl.bintray.com/codacy/Binaries/$npm_package_apiVersion/swagger.yaml -o api-swagger.yaml",
-    "generate": "autorest --typescript --model-date-time-as-string=false --input-file=./api-swagger-patched.yaml --output-folder=./",
+    "generate": "autorest --typescript --model-date-time-as-string=true --input-file=./api-swagger-patched.yaml --output-folder=./",
     "lint-md": "remark .",
     "prepare": "npm run fetch-api && npm run generate"
   },

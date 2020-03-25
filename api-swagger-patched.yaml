@@ -105,8 +105,8 @@ definitions:
       isActive:
         type: boolean
       created:
-        type: integer
-        format: int64
+        type: string
+        format: date-time
         x-scala-type: java.time.Instant
     example:
       username: "FooBar"
@@ -150,8 +150,8 @@ definitions:
       avatar:
         type: string
       createdAt:
-        type: integer
-        format: int64
+        type: string
+        format: date-time
         x-scala-type: java.time.Instant
       provider:
         $ref: '#/definitions/Provider'
@@ -186,8 +186,8 @@ definitions:
       provider:
         $ref: "#/definitions/AccountProvider"
       lastTimeAuthenticated:
-        type: integer
-        format: int64
+        type: string
+        format: date-time
         x-scala-type: java.time.Instant
     example:
       name: "FooOrganization"
