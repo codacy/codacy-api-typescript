@@ -26,27 +26,20 @@ consumes:
   - application/json
 
 definitions:
-  HealthCheck:
-    type: object
-    properties:
-      message:
-        type: string
-    example:
-      message: "Hello, it's me"
-
-  HealthCheckResponse:
-    type: object
-    required:
-      - data
-    properties:
-      data:
-        $ref: "#/definitions/HealthCheck"
+  Visibility:
+    type: string
+    x-ms-enum:
+      name: "Visibility"
+    enum: &visibilityEnum
+      - Public
+      - Private
+      - LoginPublic
 
   Provider:
     type: string
     x-ms-enum:
       name: "Provider"
-    enum:
+    enum: &providerEnum
       - manual
       - bb
       - bbe
@@ -67,6 +60,31 @@ definitions:
       - bitbucket-server
       - gitlab
       - gitlab-enterprise
+
+  JoinMode:
+    type: string
+    x-ms-enum:
+      name: "JoinMode"
+    enum:
+      - auto
+      - adminAuto
+      - request
+
+  HealthCheck:
+    type: object
+    properties:
+      message:
+        type: string
+    example:
+      message: "Hello, it's me"
+
+  HealthCheckResponse:
+    type: object
+    required:
+      - data
+    properties:
+      data:
+        $ref: "#/definitions/HealthCheck"
 
   PaginationInfo:
     type: object
@@ -136,6 +154,20 @@ definitions:
       username: "FooBar"
       name: "Foo"
 
+  ChangePasswordBody:
+    type: object
+    required:
+      - currentPassword
+      - newPassword
+    properties:
+      currentPassword:
+        type: string
+      newPassword:
+        type: string
+    example:
+      currentPassword: "current_pass"
+      newPassword: "new_pass"
+
   Organization:
     type: object
     required:
@@ -149,7 +181,7 @@ definitions:
         type: string
       avatar:
         type: string
-      createdAt:
+      created:
         type: string
         format: date-time
         x-scala-type: java.time.Instant
@@ -181,11 +213,11 @@ definitions:
     type: object
     required:
       - provider
-      - lastTimeAuthenticated
+      - lastAuthenticated
     properties:
       provider:
         $ref: "#/definitions/AccountProvider"
-      lastTimeAuthenticated:
+      lastAuthenticated:
         type: string
         format: date-time
         x-scala-type: java.time.Instant
@@ -204,6 +236,44 @@ definitions:
         type: array
         items:
           $ref: "#/definitions/Integration"
+
+  Repository:
+    type: object
+    required:
+      - owner
+      - name
+      - visibility
+    properties:
+      owner:
+        type: string
+      name:
+        type: string
+      visibility:
+        $ref: "#/definitions/Visibility"
+      remoteIdentifier:
+        type: string
+      lastUpdated:
+        type: string
+        format: date-time
+        x-scala-type: java.time.Instant
+    example:
+      owner: "codacy"
+      name: "codacy-eslint"
+      visibility: "Private"
+      remoteIdentifier: 3
+      lastUpdated: "2019-05-07T14:29:13.430Z"
+
+  RepositoryListResponse:
+    type: object
+    required:
+      - data
+    properties:
+      pagination:
+        $ref: "#/definitions/PaginationInfo"
+      data:
+        type: array
+        items:
+          $ref: "#/definitions/Repository"
 
   ApiToken:
     type: object
@@ -226,13 +296,6 @@ definitions:
         type: array
         items:
           $ref: "#/definitions/ApiToken"
-
-  JoinMode:
-    type: string
-    enum:
-      - auto
-      - adminAuto
-      - request
 
   ApiErrorCode:
     type: string
@@ -324,6 +387,36 @@ parameters:
     x-example: 30
     x-ms-parameter-location: 'method'
 
+  searchParam:
+    in: query
+    name: search
+    required: false
+    type: string
+    description: Filter the results searching by this string.
+    x-example: "my-repository-name"
+    x-ms-parameter-location: 'method'
+
+  remoteOrganizationNameParam: 
+    in: path
+    name: remoteOrganizationName
+    description: 'Remote organization name'
+    required: true
+    type: string
+    x-example: "codacy"
+    x-ms-parameter-location: 'method'
+
+  providerParam:
+    in: path
+    name: provider
+    description: "Provider"
+    required: true
+    type: string
+    enum: *providerEnum
+    x-ms-enum:
+      name: "Provider"
+    x-example: gh
+    x-ms-parameter-location: 'method'
+
 paths:
   /user:
     get:
@@ -397,7 +490,7 @@ paths:
         '200':
           description: 'Successful operation'
           schema:
-              $ref: '#/definitions/OrganizationListResponse'
+            $ref: '#/definitions/OrganizationListResponse'
         '400':
           description: 'Bad Request'
           x-ms-error-response: true
@@ -423,14 +516,14 @@ paths:
         '200':
           description: 'Successful operation'
           schema:
-              $ref: '#/definitions/IntegrationListResponse'
+            $ref: '#/definitions/IntegrationListResponse'
         '400':
           description: 'Bad Request'
           x-ms-error-response: true
           schema:
             $ref: '#/definitions/ApiError'
         '401':
-          description: 'Not Found'
+          description: 'Unauthorized'
           x-ms-error-response: true
           schema:
             $ref: '#/definitions/ApiError'
@@ -450,6 +543,67 @@ paths:
       responses:
         '204':
           description: 'Successful operation'
+        '400':
+          description: 'Bad Request'
+          x-ms-error-response: true
+          schema:
+            $ref: '#/definitions/ApiError'
+        '404':
+          description: 'Not Found'
+          x-ms-error-response: true
+          schema:
+            $ref: '#/definitions/ApiError'
+        '500':
+          description: 'Internal Server Error'
+          x-ms-error-response: true
+          schema:
+            $ref: '#/definitions/ApiError'
+
+  /user/repositories:
+    get:
+      tags:
+        - account
+      summary: List personal manual repositories for the authenticated user
+      description: List personal manual repositories for the authenticated user
+      operationId: listPersonalRepositories
+      parameters:
+        - $ref: '#/parameters/cursorParam'
+        - $ref: '#/parameters/limitParam'
+        - $ref: '#/parameters/searchParam'
+      responses:
+        '200':
+          description: 'Successful operation'
+          schema:
+            $ref: '#/definitions/RepositoryListResponse'
+        '400':
+          description: 'Bad Request'
+          x-ms-error-response: true
+          schema:
+            $ref: '#/definitions/ApiError'
+        '500':
+          description: 'Internal Server Error'
+          x-ms-error-response: true
+          schema:
+            $ref: '#/definitions/ApiError'
+
+  /organizations/{provider}/{remoteOrganizationName}/repositories:
+    get:
+      tags:
+        - organization
+      summary: List an organization repositories for the authenticated user
+      description: List an organization repositories for the authenticated user
+      operationId: listOrganizationRepositories
+      parameters:
+        - $ref: '#/parameters/providerParam'
+        - $ref: '#/parameters/remoteOrganizationNameParam'
+        - $ref: '#/parameters/cursorParam'
+        - $ref: '#/parameters/limitParam'
+        - $ref: '#/parameters/searchParam'
+      responses:
+        '200':
+          description: 'Successful operation'
+          schema:
+            $ref: '#/definitions/RepositoryListResponse'
         '400':
           description: 'Bad Request'
           x-ms-error-response: true
@@ -512,6 +666,40 @@ paths:
       responses:
         '204':
           description: 'Successful operation'
+        '404':
+          description: 'Not Found'
+          x-ms-error-response: true
+          schema:
+            $ref: '#/definitions/ApiError'
+
+  /user/password:
+    post:
+      tags:
+        - account
+      summary: Change the password for the authenticated user
+      description: For the authenticated user, validates the current password and changes it to a new one
+      operationId: changePassword
+      parameters:
+        - in: body
+          name: "ChangePasswordBody"
+          required: true
+          schema:
+            $ref: "#/definitions/ChangePasswordBody"
+      responses:
+        '204':
+          description: 'Successful operation'
+        # This error is thrown when validating the current password
+        # At the time of this implementation the team discussed if this should be a 401 Unauthorized:
+        #   - This operation validates a password field, implying a security validation on the payload (hence a 401)
+        #     - At the same time, 401 is currently used only to encode non-authenticated requests
+        #   - 400 can be used as a standard http code for all wrong values in requests
+        #     - It also can be seen as too generic given this use case
+        # Research on this showed that other APIs return 400 BadRequest in this situation, so we decided for 400
+        '400':
+          description: 'Bad Request'
+          x-ms-error-response: true
+          schema:
+            $ref: '#/definitions/ApiError'
         '404':
           description: 'Not Found'
           x-ms-error-response: true
