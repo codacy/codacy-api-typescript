@@ -101,6 +101,7 @@ definitions:
   User:
     type: object
     required:
+      - id
       - username
       - mainEmail
       - otherEmails
@@ -108,6 +109,9 @@ definitions:
       - isActive
       - created
     properties:
+      id:
+        type: integer
+        format: int64
       username:
         type: string
       name:
