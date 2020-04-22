@@ -130,6 +130,8 @@ definitions:
         type: string
         format: date-time
         x-scala-type: java.time.Instant
+      intercomHash:
+        type: string
     example:
       username: "FooBar"
       name: "Foo"
@@ -138,6 +140,7 @@ definitions:
       isAdmin: false
       isActive: true
       created: "2019-05-07T14:29:13.430Z"
+      intercomHash: "userhash"
 
   UserResponse:
     type: object

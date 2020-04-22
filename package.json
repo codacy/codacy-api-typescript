@@ -45,6 +45,11 @@
       "eslint --fix"
     ]
   },
+  "remarkConfig": {
+    "plugins": [
+      "remark-preset-lint-recommended"
+    ]
+  },
   "dependencies": {
     "@azure/ms-rest-js": "^2.0.4",
     "sort-package-json": "^1.39.1",
@@ -61,10 +66,5 @@
     "remark-preset-lint-recommended": "^4.0.0",
     "typescript": "^3.7.5"
   },
-  "apiVersion": "9.6.0",
-  "remarkConfig": {
-    "plugins": [
-      "remark-preset-lint-recommended"
-    ]
-  }
+  "apiVersion": "10.8.0"
 }
