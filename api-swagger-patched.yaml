@@ -14,16 +14,22 @@ info:
     url: https://www.codacy.com
 
 schemes:
-  - http
+  - https
 
 host: app.codacy.com
 
-basePath: /v3
+basePath: /api/v3
 
 produces:
   - application/json
 consumes:
   - application/json
+
+securityDefinitions:
+  ApiKeyAuth:
+    type: apiKey
+    in: header
+    name: api-token
 
 definitions:
   Visibility:
@@ -72,6 +78,8 @@ definitions:
 
   HealthCheck:
     type: object
+    required:
+      - message
     properties:
       message:
         type: string
@@ -299,58 +307,80 @@ definitions:
     required:
       - data
     properties:
+      pagination:
+        $ref: "#/definitions/PaginationInfo"
       data:
         type: array
         items:
           $ref: "#/definitions/ApiToken"
 
-  ApiErrorCode:
-    type: string
-    enum:
-      - BadRequest
-      - Unauthorized
-      - Forbidden
-      - NotFound
-      - InternalServerError
-
+  # This is the "interface" for all error responses
+  # It should not be used as an error response by itself
   ApiError:
     type: object
+    discriminator: error
     required:
+      - error
       - message
-      - code
     properties:
+      error:
+        type: string
       message:
         type: string
-      code:
-        $ref: "#/definitions/ApiErrorCode"
 
-  BadRequestResponse: #400
-    description: BadRequest
+  BadRequest: #400
     allOf:
       - $ref: "#/definitions/ApiError"
 
-  UnauthorizedResponse: #401
-    description: Unauthorized
+  Unauthorized: #401
     allOf:
       - $ref: "#/definitions/ApiError"
 
-  ForbiddenResponse: #403
-    description: Forbidden
+  Forbidden: #403
     allOf:
       - $ref: "#/definitions/ApiError"
 
-  NotFoundResponse: #404
-    description: Not found
+  NotFound: #404
     allOf:
       - $ref: "#/definitions/ApiError"
 
-  InternalServerErrorResponse: #500
-    description: Internal Server Error
+  InternalServerError: #500
     allOf:
       - $ref: "#/definitions/ApiError"
+
+responses:
+  BadRequest: #400
+    description: 'Bad Request'
+    x-ms-error-response: true
+    schema:
+      $ref: "#/definitions/BadRequest"
+
+  Unauthorized: #401
+    description: 'Unauthorized'
+    x-ms-error-response: true
+    schema:
+      $ref: "#/definitions/Unauthorized"
+
+  Forbidden: #403
+    description: 'Forbidden'
+    x-ms-error-response: true
+    schema:
+      $ref: "#/definitions/Forbidden"
+
+  NotFound: #404
+    description: 'Not Found'
+    x-ms-error-response: true
+    schema:
+      $ref: "#/definitions/NotFound"
+
+  InternalServerError: #500
+    description: 'Internal Server Error'
+    x-ms-error-response: true
+    schema:
+      $ref: "#/definitions/InternalServerError"
 
 parameters:
-  cursorParam:
+  cursorParam: &cursorParam
     in: query
     name: cursor
     required: false
@@ -359,7 +389,7 @@ parameters:
     x-example: "Yms345gh=="
     x-ms-parameter-location: 'method'
 
-  limitParam:
+  limitParam: &limitParam
     in: query
     name: limit
     required: false
@@ -372,19 +402,19 @@ parameters:
     x-example: 20
     x-ms-parameter-location: 'method'
 
-  accountProviderParam:
+  accountProviderParam: &accountProviderParam
     in: path
-    name: provider
+    name: accountProvider
     description: "Account Provider"
     required: true
     type: string
     enum: *accountProviderEnum
-    x-ms-enum:
-      name: "AccountProvider"
     x-example: github
     x-ms-parameter-location: 'method'
+    x-ms-enum:
+      name: "AccountProvider"
 
-  tokenIdParam:
+  tokenIdParam: &tokenIdParam
     in: path
     name: tokenId
     description: "Token ID"
@@ -394,7 +424,7 @@ parameters:
     x-example: 30
     x-ms-parameter-location: 'method'
 
-  searchParam:
+  searchParam: &searchParam
     in: query
     name: search
     required: false
@@ -403,7 +433,7 @@ parameters:
     x-example: "my-repository-name"
     x-ms-parameter-location: 'method'
 
-  remoteOrganizationNameParam: 
+  remoteOrganizationNameParam: &remoteOrganizationNameParam
     in: path
     name: remoteOrganizationName
     description: 'Remote organization name'
@@ -412,17 +442,20 @@ parameters:
     x-example: "codacy"
     x-ms-parameter-location: 'method'
 
-  providerParam:
+  providerParam: &providerParam
     in: path
     name: provider
     description: "Provider"
     required: true
     type: string
     enum: *providerEnum
-    x-ms-enum:
-      name: "Provider"
     x-example: gh
     x-ms-parameter-location: 'method'
+    x-ms-enum:
+      name: "Provider"
+
+security:
+  - ApiKeyAuth: []
 
 paths:
   /user:
@@ -437,11 +470,10 @@ paths:
           description: 'Successful operation'
           schema:
             $ref: '#/definitions/UserResponse'
+        '401':
+          $ref: '#/responses/Unauthorized'
         '500':
-          description: 'Internal Server Error'
-          x-ms-error-response: true
-          schema:
-            $ref: '#/definitions/ApiError'
+          $ref: '#/responses/InternalServerError'
     delete:
       tags:
         - account
@@ -457,11 +489,10 @@ paths:
       responses:
         '204':
           description: 'Successful operation'
+        '401':
+          $ref: '#/responses/Unauthorized'
         '500':
-          description: 'Internal Server Error'
-          x-ms-error-response: true
-          schema:
-            $ref: '#/definitions/ApiError'
+          $ref: '#/responses/InternalServerError'
     patch:
       tags:
         - account
@@ -477,11 +508,12 @@ paths:
           description: 'Successful operation'
           schema:
             $ref: '#/definitions/UserResponse'
+        '401':
+          $ref: '#/responses/Unauthorized'
+        '404':
+          $ref: '#/responses/NotFound'
         '500':
-          description: 'Internal Server Error'
-          x-ms-error-response: true
-          schema:
-            $ref: '#/definitions/ApiError'
+          $ref: '#/responses/InternalServerError'
 
   /user/orgs:
     get:
@@ -491,23 +523,19 @@ paths:
       description: List organizations for the authenticated user
       operationId: listUserOrganizations
       parameters:
-        - $ref: '#/parameters/cursorParam'
-        - $ref: '#/parameters/limitParam'
+        - *cursorParam
+        - *limitParam
       responses:
         '200':
           description: 'Successful operation'
           schema:
             $ref: '#/definitions/OrganizationListResponse'
         '400':
-          description: 'Bad Request'
-          x-ms-error-response: true
-          schema:
-            $ref: '#/definitions/ApiError'
+          $ref: '#/responses/BadRequest'
+        '401':
+          $ref: '#/responses/Unauthorized'
         '500':
-          description: 'Internal Server Error'
-          x-ms-error-response: true
-          schema:
-            $ref: '#/definitions/ApiError'
+          $ref: '#/responses/InternalServerError'
 
   /user/integrations:
     get:
@@ -517,54 +545,38 @@ paths:
       description: List integrations for the authenticated user
       operationId: listUserIntegrations
       parameters:
-        - $ref: '#/parameters/cursorParam'
-        - $ref: '#/parameters/limitParam'
+        - *cursorParam
+        - *limitParam
       responses:
         '200':
           description: 'Successful operation'
           schema:
             $ref: '#/definitions/IntegrationListResponse'
         '400':
-          description: 'Bad Request'
-          x-ms-error-response: true
-          schema:
-            $ref: '#/definitions/ApiError'
+          $ref: '#/responses/BadRequest'
         '401':
-          description: 'Unauthorized'
-          x-ms-error-response: true
-          schema:
-            $ref: '#/definitions/ApiError'
+          $ref: '#/responses/Unauthorized'
         '500':
-          description: 'Internal Server Error'
-          x-ms-error-response: true
-          schema:
-            $ref: '#/definitions/ApiError'
+          $ref: '#/responses/InternalServerError'
 
-  /user/integrations/{provider}:
+  /user/integrations/{accountProvider}:
     delete:
       tags:
         - account
       operationId: deleteIntegration
       parameters:
-        - $ref: '#/parameters/accountProviderParam'
+        - *accountProviderParam
       responses:
         '204':
           description: 'Successful operation'
         '400':
-          description: 'Bad Request'
-          x-ms-error-response: true
-          schema:
-            $ref: '#/definitions/ApiError'
+          $ref: '#/responses/BadRequest'
+        '401':
+          $ref: '#/responses/Unauthorized'
         '404':
-          description: 'Not Found'
-          x-ms-error-response: true
-          schema:
-            $ref: '#/definitions/ApiError'
+          $ref: '#/responses/NotFound'
         '500':
-          description: 'Internal Server Error'
-          x-ms-error-response: true
-          schema:
-            $ref: '#/definitions/ApiError'
+          $ref: '#/responses/InternalServerError'
 
   /user/repositories:
     get:
@@ -574,24 +586,20 @@ paths:
       description: List personal manual repositories for the authenticated user
       operationId: listPersonalRepositories
       parameters:
-        - $ref: '#/parameters/cursorParam'
-        - $ref: '#/parameters/limitParam'
-        - $ref: '#/parameters/searchParam'
+        - *cursorParam
+        - *limitParam
+        - *searchParam
       responses:
         '200':
           description: 'Successful operation'
           schema:
             $ref: '#/definitions/RepositoryListResponse'
         '400':
-          description: 'Bad Request'
-          x-ms-error-response: true
-          schema:
-            $ref: '#/definitions/ApiError'
+          $ref: '#/responses/BadRequest'
+        '401':
+          $ref: '#/responses/Unauthorized'
         '500':
-          description: 'Internal Server Error'
-          x-ms-error-response: true
-          schema:
-            $ref: '#/definitions/ApiError'
+          $ref: '#/responses/InternalServerError'
 
   /organizations/{provider}/{remoteOrganizationName}/repositories:
     get:
@@ -601,31 +609,22 @@ paths:
       description: List an organization repositories for the authenticated user
       operationId: listOrganizationRepositories
       parameters:
-        - $ref: '#/parameters/providerParam'
-        - $ref: '#/parameters/remoteOrganizationNameParam'
-        - $ref: '#/parameters/cursorParam'
-        - $ref: '#/parameters/limitParam'
-        - $ref: '#/parameters/searchParam'
+        - *providerParam
+        - *remoteOrganizationNameParam
+        - *cursorParam
+        - *limitParam
+        - *searchParam
       responses:
         '200':
           description: 'Successful operation'
           schema:
             $ref: '#/definitions/RepositoryListResponse'
         '400':
-          description: 'Bad Request'
-          x-ms-error-response: true
-          schema:
-            $ref: '#/definitions/ApiError'
+          $ref: '#/responses/BadRequest'
         '404':
-          description: 'Not Found'
-          x-ms-error-response: true
-          schema:
-            $ref: '#/definitions/ApiError'
+          $ref: '#/responses/NotFound'
         '500':
-          description: 'Internal Server Error'
-          x-ms-error-response: true
-          schema:
-            $ref: '#/definitions/ApiError'
+          $ref: '#/responses/InternalServerError'
 
   /user/tokens:
     get:
@@ -634,16 +633,20 @@ paths:
       summary: Get the authenticated user's API Tokens
       description: Get the authenticated user's API Tokens
       operationId: getUserApiTokens
+      parameters:
+        - *cursorParam
+        - *limitParam
       responses:
         '200':
           description: 'Successful operation'
           schema:
             $ref: '#/definitions/ApiTokenListResponse'
+        '400':
+          $ref: '#/responses/BadRequest'
+        '401':
+          $ref: '#/responses/Unauthorized'
         '500':
-          description: 'Internal Server Error'
-          x-ms-error-response: true
-          schema:
-            $ref: '#/definitions/ApiError'
+          $ref: '#/responses/InternalServerError'
     post:
       tags:
         - account
@@ -655,11 +658,10 @@ paths:
           description: 'Successful operation'
           schema:
             $ref: '#/definitions/ApiToken'
+        '401':
+          $ref: '#/responses/Unauthorized'
         '500':
-          description: 'Internal Server Error'
-          x-ms-error-response: true
-          schema:
-            $ref: '#/definitions/ApiError'
+          $ref: '#/responses/InternalServerError'
 
   /user/tokens/{tokenId}:
     delete:
@@ -669,15 +671,16 @@ paths:
       description: Delete an API Token of the authenticated user
       operationId: deleteUserApiToken
       parameters:
-        - $ref: '#/parameters/tokenIdParam'
+        - *tokenIdParam
       responses:
         '204':
           description: 'Successful operation'
+        '401':
+          $ref: '#/responses/Unauthorized'
         '404':
-          description: 'Not Found'
-          x-ms-error-response: true
-          schema:
-            $ref: '#/definitions/ApiError'
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/InternalServerError'
 
   /user/password:
     post:
@@ -703,15 +706,13 @@ paths:
         #     - It also can be seen as too generic given this use case
         # Research on this showed that other APIs return 400 BadRequest in this situation, so we decided for 400
         '400':
-          description: 'Bad Request'
-          x-ms-error-response: true
-          schema:
-            $ref: '#/definitions/ApiError'
+          $ref: '#/responses/BadRequest'
+        '401':
+          $ref: '#/responses/Unauthorized'
         '404':
-          description: 'Not Found'
-          x-ms-error-response: true
-          schema:
-            $ref: '#/definitions/ApiError'
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/InternalServerError'
 
   /health:
     get:
@@ -727,3 +728,5 @@ paths:
             $ref: '#/definitions/HealthCheckResponse'
           examples:
             application/json: [{ message: "Hello, it's me" }]
+        '500':
+          $ref: '#/responses/InternalServerError'
