@@ -411,6 +411,8 @@ parameters:
     enum: *accountProviderEnum
     x-example: github
     x-ms-parameter-location: 'method'
+    x-ms-enum:
+      name: "AccountProvider"
 
   tokenIdParam: &tokenIdParam
     in: path
@@ -449,6 +451,8 @@ parameters:
     enum: *providerEnum
     x-example: gh
     x-ms-parameter-location: 'method'
+    x-ms-enum:
+      name: "Provider"
 
 security:
   - ApiKeyAuth: []
