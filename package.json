@@ -25,7 +25,8 @@
     "fetch-api": "curl https://dl.bintray.com/codacy/Binaries/$npm_package_apiVersion/swagger.yaml -o api-swagger.yaml",
     "generate": "autorest --typescript --model-date-time-as-string=true --input-file=./api-swagger-patched.yaml --output-folder=./",
     "lint-md": "remark .",
-    "prepare": "npm run fetch-api && npm run generate"
+    "patch-api": "python3 patch-api-definition.py api-swagger.yaml api-swagger-patched.yaml",
+    "prepare": "npm run fetch-api && npm run patch-api && npm run generate"
   },
   "husky": {
     "hooks": {

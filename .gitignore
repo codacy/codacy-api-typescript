@@ -21,3 +21,4 @@ src/websiteAPI.ts
 src/websiteAPIContext.ts
 src/models/
 api-swagger.yaml
+api-swagger-patched.yaml
