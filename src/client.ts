@@ -15,66 +15,77 @@ export type ErrorType = 'ApiError' | 'BadRequest' | 'Unauthorized' | 'Forbidden'
 export class BaseApiError extends Error {
   errorType: ErrorType
   innerResponse?: HttpOperationResponse
+  innerException?: Error
 
-  constructor(error: Models.ApiErrorUnion, response?: HttpOperationResponse) {
+  constructor(error: Models.ApiErrorUnion, response?: HttpOperationResponse, exception?: Error) {
     super(error.message)
     Object.setPrototypeOf(this, BaseApiError.prototype)
     this.errorType = error.error
+
     this.innerResponse = response
+    this.innerException = exception
   }
 }
 
 export class UnexpectedApiError extends BaseApiError {
-  constructor(error: Models.ApiErrorUnion, response?: HttpOperationResponse) {
-    super(error, response)
+  constructor(error: Models.ApiErrorUnion, response?: HttpOperationResponse, exception?: Error) {
+    super(error, response, exception)
     this.name = 'UnexpectedApiError'
     Object.setPrototypeOf(this, UnexpectedApiError.prototype)
   }
 }
 
-export class ApiNotAvailable extends BaseApiError {
-  constructor(error: Models.ApiErrorUnion, response?: HttpOperationResponse) {
-    super(error, response)
-    this.name = 'ApiNotAvailable'
-    Object.setPrototypeOf(this, ApiNotAvailable.prototype)
+export class MalformedApiError extends BaseApiError {
+  constructor(error: Models.ApiErrorUnion, response?: HttpOperationResponse, exception?: Error) {
+    super(error, response, exception)
+    this.name = 'MalformedApiError'
+    Object.setPrototypeOf(this, MalformedApiError.prototype)
+  }
+}
+
+export class ApiRequestFailed extends BaseApiError {
+  constructor(error: Models.ApiErrorUnion, response?: HttpOperationResponse, exception?: Error) {
+    super(error, response, exception)
+    this.name = 'ApiRequestFailed'
+    Object.setPrototypeOf(this, ApiRequestFailed.prototype)
   }
 }
 
 export class BadRequestApiError extends BaseApiError {
-  constructor(error: Models.ApiErrorUnion, response?: HttpOperationResponse) {
-    super(error, response)
+  constructor(error: Models.ApiErrorUnion, response?: HttpOperationResponse, exception?: Error) {
+    super(error, response, exception)
     this.name = 'BadRequestApiError'
     Object.setPrototypeOf(this, BadRequestApiError.prototype)
   }
 }
 
 export class UnauthorizedApiError extends BaseApiError {
-  constructor(error: Models.ApiErrorUnion, response?: HttpOperationResponse) {
-    super(error, response)
+  constructor(error: Models.ApiErrorUnion, response?: HttpOperationResponse, exception?: Error) {
+    super(error, response, exception)
     this.name = 'UnauthorizedApiError'
     Object.setPrototypeOf(this, UnauthorizedApiError.prototype)
   }
 }
 
 export class ForbiddenApiError extends BaseApiError {
-  constructor(error: Models.ApiErrorUnion, response?: HttpOperationResponse) {
-    super(error, response)
+  constructor(error: Models.ApiErrorUnion, response?: HttpOperationResponse, exception?: Error) {
+    super(error, response, exception)
     this.name = 'ForbiddenApiError'
     Object.setPrototypeOf(this, ForbiddenApiError.prototype)
   }
 }
 
 export class NotFoundApiError extends BaseApiError {
-  constructor(error: Models.ApiErrorUnion, response?: HttpOperationResponse) {
-    super(error, response)
+  constructor(error: Models.ApiErrorUnion, response?: HttpOperationResponse, exception?: Error) {
+    super(error, response, exception)
     this.name = 'NotFoundApiError'
     Object.setPrototypeOf(this, NotFoundApiError.prototype)
   }
 }
 
 export class InternalServerApiError extends BaseApiError {
-  constructor(error: Models.ApiErrorUnion, response?: HttpOperationResponse) {
-    super(error, response)
+  constructor(error: Models.ApiErrorUnion, response?: HttpOperationResponse, exception?: Error) {
+    super(error, response, exception)
     this.name = 'InternalServerApiError'
     Object.setPrototypeOf(this, InternalServerApiError.prototype)
   }
@@ -110,8 +121,11 @@ class ApiErrorHandlerPolicy extends BaseRequestPolicy {
         }
       } else if (result.status < 200 || result.status >= 300) {
         // the API responded with an error status code, but not formed as an error - THIS SHOULD NEVER HAPPEN
-        throw new UnexpectedApiError(
-          { message: `Unexpected error with code ${result.status}.`, error: 'ApiError' },
+        throw new MalformedApiError(
+          {
+            message: `The API responded with an error code ${result.status}. The result was not properly formed by the API.`,
+            error: 'ApiError',
+          },
           result
         )
       }
@@ -119,10 +133,14 @@ class ApiErrorHandlerPolicy extends BaseRequestPolicy {
       return result
     } catch (err) {
       // totally unexpected error, assume the API is not configured or broken
-      throw new ApiNotAvailable({
-        message: 'Codacy API was not found, is not available, or responded with an unexpected behaviour.',
-        error: 'ApiError',
-      })
+      throw new ApiRequestFailed(
+        {
+          message: 'Codacy API was not found, is not available, or responded with an unexpected behaviour.',
+          error: 'ApiError',
+        },
+        undefined,
+        err
+      )
     }
   }
 }
