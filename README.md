@@ -68,7 +68,7 @@ const App: React.FC = () => {
 ```typescript
 import React, { useState, useEffect, useContext } from 'react'
 import ApiContext from '../ApiContext'
-import { User, ApiError } from '@codacy/api-typescript/lib/models'
+import { User, BaseApiError, UnauthorizedApiError } from '@codacy/api-typescript/lib/models'
 
 export interface UserInformationProps {
   id: number
@@ -77,18 +77,22 @@ export interface UserInformationProps {
 export const UserInformation: React.FC<UserInformationProps> = ({ id }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [user, setUser] = useState<User>()
-  const [error, setError] = useState<ApiError>()
+  const [error, setError] = useState<BaseApiError>()
   const client = useContext(ApiContext)
 
   useEffect(() => {
     async function fetchUser() {
       try {
         const response = await client!.getUser(id)
-
         setUser(response!.data)
-        setIsLoading(false)
       } catch (err) {
-        setError(err as ApiError)
+        if ( err instanceof UnauthorizedApiError ) {
+          // catch specific errors
+        } else {
+          setError(err as BaseApiError)
+        }
+      } finally {
+        setIsLoading(false)
       }
     }
 
