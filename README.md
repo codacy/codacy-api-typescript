@@ -68,7 +68,7 @@ const App: React.FC = () => {
 ```typescript
 import React, { useState, useEffect, useContext } from 'react'
 import ApiContext from '../ApiContext'
-import { User, UnauthorizedApiError } from '@codacy/api-typescript/lib/models'
+import { User, BaseApiError, UnauthorizedApiError } from '@codacy/api-typescript/lib/models'
 
 export interface UserInformationProps {
   id: number
