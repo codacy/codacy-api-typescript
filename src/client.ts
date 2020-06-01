@@ -11,12 +11,20 @@ import {
   RequestPolicyFactory,
 } from '@azure/ms-rest-js'
 
-export type ErrorType = 'ApiError' | 'BadRequest' | 'Unauthorized' | 'Forbidden' | 'NotFound' | 'InternalServerError'
+export type ErrorType =
+  | 'ApiError'
+  | 'BadRequest'
+  | 'Unauthorized'
+  | 'Forbidden'
+  | 'NotFound'
+  | 'Conflict'
+  | 'InternalServerError'
 export type ApiErrorUnion =
   | Models.BadRequest
   | Models.Forbidden
   | Models.Unauthorized
   | Models.NotFound
+  | Models.Conflict
   | Models.InternalServerError
 export class BaseApiError extends Error {
   errorType: string
@@ -89,6 +97,14 @@ export class NotFoundApiError extends BaseApiError {
   }
 }
 
+export class ConflictApiError extends BaseApiError {
+  constructor(error: ApiErrorUnion, response?: HttpOperationResponse, exception?: Error) {
+    super(error, response, exception)
+    this.name = 'ConflictApiError'
+    Object.setPrototypeOf(this, ConflictApiError.prototype)
+  }
+}
+
 export class InternalServerApiError extends BaseApiError {
   constructor(error: ApiErrorUnion, response?: HttpOperationResponse, exception?: Error) {
     super(error, response, exception)
@@ -133,6 +149,8 @@ class ApiErrorHandlerPolicy extends BaseRequestPolicy {
           throw new ForbiddenApiError(exception, result)
         case 'NotFound':
           throw new NotFoundApiError(exception, result)
+        case 'Conflict':
+          throw new ConflictApiError(exception, result)
         case 'InternalServerError':
           throw new InternalServerApiError(exception, result)
         default:
