@@ -20,16 +20,14 @@ export type ErrorType =
   | 'Conflict'
   | 'InternalServerError'
 
-export type ApiErrorUnion = Omit<
+export type ApiErrorUnion =
   | Models.BadRequest
   | Models.Forbidden
   | Models.Unauthorized
   | Models.PaymentRequired
   | Models.NotFound
   | Models.Conflict
-  | Models.InternalServerError,
-  'actions'
-> & { actions?: Models.ProblemLink[] }
+  | Models.InternalServerError
 
 export class BaseApiError extends Error {
   errorType: string
@@ -41,7 +39,7 @@ export class BaseApiError extends Error {
     super(error.message)
     Object.setPrototypeOf(this, BaseApiError.prototype)
     this.errorType = error.error
-    this.actions = error.actions || []
+    this.actions = error.actions
 
     this.innerResponse = response
     this.innerException = exception
@@ -145,6 +143,7 @@ class ApiErrorHandlerPolicy extends BaseRequestPolicy {
         {
           message: 'Codacy API was not found, is not available, or responded with an unexpected behaviour.',
           error: 'ApiError',
+          actions: [],
         },
         undefined,
         err
@@ -179,6 +178,7 @@ class ApiErrorHandlerPolicy extends BaseRequestPolicy {
         {
           message: `The API responded with an error code ${result.status}. The result was not properly formed by the API.`,
           error: 'ApiError',
+          actions: [],
         },
         result
       )
