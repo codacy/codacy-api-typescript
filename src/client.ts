@@ -19,22 +19,27 @@ export type ErrorType =
   | 'NotFound'
   | 'Conflict'
   | 'InternalServerError'
+
 export type ApiErrorUnion =
   | Models.BadRequest
   | Models.Forbidden
   | Models.Unauthorized
+  | Models.PaymentRequired
   | Models.NotFound
   | Models.Conflict
   | Models.InternalServerError
+
 export class BaseApiError extends Error {
   errorType: string
   innerResponse?: HttpOperationResponse
   innerException?: Error
+  actions: Models.ProblemLink[]
 
   constructor(error: ApiErrorUnion, response?: HttpOperationResponse, exception?: Error) {
     super(error.message)
     Object.setPrototypeOf(this, BaseApiError.prototype)
     this.errorType = error.error
+    this.actions = error.actions
 
     this.innerResponse = response
     this.innerException = exception
@@ -78,6 +83,14 @@ export class UnauthorizedApiError extends BaseApiError {
     super(error, response, exception)
     this.name = 'UnauthorizedApiError'
     Object.setPrototypeOf(this, UnauthorizedApiError.prototype)
+  }
+}
+
+export class PaymentRequiredApiError extends BaseApiError {
+  constructor(error: ApiErrorUnion, response?: HttpOperationResponse, exception?: Error) {
+    super(error, response, exception)
+    this.name = 'PaymentRequiredApiError'
+    Object.setPrototypeOf(this, PaymentRequiredApiError.prototype)
   }
 }
 
@@ -130,6 +143,7 @@ class ApiErrorHandlerPolicy extends BaseRequestPolicy {
         {
           message: 'Codacy API was not found, is not available, or responded with an unexpected behaviour.',
           error: 'ApiError',
+          actions: [],
         },
         undefined,
         err
@@ -145,6 +159,8 @@ class ApiErrorHandlerPolicy extends BaseRequestPolicy {
           throw new BadRequestApiError(exception, result)
         case 'Unauthorized':
           throw new UnauthorizedApiError(exception, result)
+        case 'PaymentRequired':
+          throw new PaymentRequiredApiError(exception, result)
         case 'Forbidden':
           throw new ForbiddenApiError(exception, result)
         case 'NotFound':
@@ -162,6 +178,7 @@ class ApiErrorHandlerPolicy extends BaseRequestPolicy {
         {
           message: `The API responded with an error code ${result.status}. The result was not properly formed by the API.`,
           error: 'ApiError',
+          actions: [],
         },
         result
       )
