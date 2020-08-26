@@ -70,6 +70,14 @@ export class ApiRequestFailed extends BaseApiError {
   }
 }
 
+export class AbortedRequest extends BaseApiError {
+  constructor(error: ApiErrorUnion, response?: HttpOperationResponse, exception?: Error) {
+    super(error, response, exception)
+    this.name = 'AbortedRequest'
+    Object.setPrototypeOf(this, AbortedRequest.prototype)
+  }
+}
+
 export class BadRequestApiError extends BaseApiError {
   constructor(error: ApiErrorUnion, response?: HttpOperationResponse, exception?: Error) {
     super(error, response, exception)
@@ -138,16 +146,29 @@ class ApiErrorHandlerPolicy extends BaseRequestPolicy {
       result = await this._nextPolicy.sendRequest(webResource)
       body = result.parsedBody
     } catch (err) {
-      // totally unexpected error, assume the API is not configured or broken
-      throw new ApiRequestFailed(
-        {
-          message: 'Codacy API was not found, is not available, or responded with an unexpected behaviour.',
-          error: 'ApiError',
-          actions: [],
-        },
-        undefined,
-        err
-      )
+      if (err.code === 'REQUEST_ABORTED_ERROR') {
+        // request was aborted
+        throw new AbortedRequest(
+          {
+            message: 'Request was aborted.',
+            error: 'AbortedRequest',
+            actions: [],
+          },
+          undefined,
+          err
+        )
+      } else {
+        // totally unexpected error, assume the API is not configured or broken
+        throw new ApiRequestFailed(
+          {
+            message: 'Codacy API was not found, is not available, or responded with an unexpected behaviour.',
+            error: 'ApiError',
+            actions: [],
+          },
+          undefined,
+          err
+        )
+      }
     }
 
     if (body !== undefined && 'error' in body && 'message' in body) {
