@@ -51,7 +51,7 @@
     ]
   },
   "dependencies": {
-    "@azure/ms-rest-js": "^2.1.0",
+    "@azure/ms-rest-js": "^2.0.4",
     "tslib": "^1.10.0"
   },
   "devDependencies": {
@@ -59,7 +59,7 @@
     "@types/babel__template": "^7.0.2",
     "@typescript-eslint/eslint-plugin": "^2.31.0",
     "@typescript-eslint/parser": "^2.31.0",
-    "autorest": "^3.0.6247",
+    "autorest": "^3.0.6187",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.11.0",
     "husky": "^4.2.3",
