@@ -22,7 +22,7 @@
     "build": "tsc",
     "check-types": "tsc --noEmit",
     "check-types:watch": "npm run check-types -- --watch",
-    "fetch-api": "curl https://dl.bintray.com/codacy/api/codacy-api/$npm_package_apiVersion/apiv3.yaml -o api-swagger.yaml",
+    "fetch-api": "curl https://artifacts.codacy.com/api/codacy-api/$npm_package_apiVersion/apiv3.yaml -o api-swagger.yaml",
     "generate": "autorest --typescript --version:2.0.4413 --model-date-time-as-string=true --input-file=./api-swagger.yaml --output-folder=./",
     "lint-md": "remark .",
     "prepare": "npm run fetch-api && npm run generate"
