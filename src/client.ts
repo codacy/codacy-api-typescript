@@ -1,7 +1,7 @@
 import * as Models from './models'
 import * as Mappers from './models/mappers'
-import { WebsiteAPI } from './websiteAPI'
-import { WebsiteAPIContext } from './websiteAPIContext'
+import { CodacyAPI } from './codacyAPI'
+import { CodacyAPIContext } from './codacyAPIContext'
 import {
   HttpOperationResponse,
   BaseRequestPolicy,
@@ -213,12 +213,12 @@ const apiErrorHandlerPolicyFactory: RequestPolicyFactory = {
   create: (nextPolicy: RequestPolicy, options: RequestPolicyOptions) => new ApiErrorHandlerPolicy(nextPolicy, options),
 }
 
-class Client extends WebsiteAPI {
+class Client extends CodacyAPI {
   /**
    * Initializes a new instance of the WebsiteAPI class.
    * @param [options] The parameter options
    */
-  constructor(options?: Omit<Models.WebsiteAPIOptions, 'requestPolicyFactories'>) {
+  constructor(options?: Omit<Models.CodacyAPIOptions, 'requestPolicyFactories'>) {
     super({
       ...options,
       requestPolicyFactories: (defaultRequestPolicyFactories) => {
@@ -228,4 +228,4 @@ class Client extends WebsiteAPI {
   }
 }
 
-export { Client, WebsiteAPI, WebsiteAPIContext, Models as WebsiteAPIModels, Mappers as WebsiteAPIMappers }
+export { Client, CodacyAPI, CodacyAPIContext, Models as WebsiteAPIModels, Mappers as WebsiteAPIMappers }
