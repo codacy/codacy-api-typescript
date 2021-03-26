@@ -228,4 +228,10 @@ class Client extends CodacyAPI {
   }
 }
 
-export { Client, CodacyAPI, CodacyAPIContext, Models as WebsiteAPIModels, Mappers as WebsiteAPIMappers }
+export {
+  Client,
+  CodacyAPI as WebsiteAPI,
+  CodacyAPIContext as WebsiteAPIContext,
+  Models as WebsiteAPIModels,
+  Mappers as WebsiteAPIMappers,
+}
