@@ -143,6 +143,7 @@ class ApiErrorHandlerPolicy extends BaseRequestPolicy {
     let result
     let body
     try {
+      webResource.headers.set('Csrf-Token', 'nocheck')
       result = await this._nextPolicy.sendRequest(webResource)
       body = result.parsedBody
     } catch (err) {
