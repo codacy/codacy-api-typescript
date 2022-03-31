@@ -36,12 +36,14 @@ export class BaseApiError extends Error {
   innerResponse?: HttpOperationResponse
   innerException?: Error
   actions: Models.ProblemLink[]
+  innerMessage?: string
 
   constructor(error: ApiErrorUnion, response?: HttpOperationResponse, exception?: Error) {
     super(error.message)
     Object.setPrototypeOf(this, BaseApiError.prototype)
     this.errorType = error.error
     this.actions = error.actions
+    this.innerMessage = error.innerMessage
 
     this.innerResponse = response
     this.innerException = exception
