@@ -7,7 +7,7 @@ If you're running Linux
 sudo apt-get install libunwind8
 ```
 
-The autorest version we are using only works up to node v14.
+The [AutoRest](https://github.com/Azure/autorest) version we are using only works up to Node.js v14.
 
 ## Usage
 ### Generate the code
