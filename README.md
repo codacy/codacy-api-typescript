@@ -7,6 +7,8 @@ If you're running Linux
 sudo apt-get install libunwind8
 ```
 
+The autorest version we are using only works up to node v14.
+
 ## Usage
 ### Generate the code
 To run the entire process:
