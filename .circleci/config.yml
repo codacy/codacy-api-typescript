@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  codacy: codacy/base@2.0.1
+  codacy: codacy/base@7.0.0
 
 references:
   release_filter: &release_filter
@@ -9,7 +9,7 @@ references:
       branches:
         only:
           - master
-          
+
 jobs:
   build_package:
     docker:
@@ -42,7 +42,7 @@ jobs:
           root: ~/workdir
           paths:
             - lib/
-            - node_modules/  
+            - node_modules/
 
   publish_packages:
     docker:
@@ -53,12 +53,12 @@ jobs:
           at: ~/workdir
       - run:
           name: Install Autorest dependencies
-          command: sudo apt-get install libunwind8          
+          command: sudo apt-get install libunwind8
       - run:
           name: Check current version of node and npm
           command: |
             node -v
-            yarn -v   
+            yarn -v
       - run:
           name: Setup npm credentials
           command: |
@@ -85,7 +85,7 @@ workflows:
           name: tag_version
           context: CodacyAWS
           requires:
-            - build_package            
+            - build_package
       - publish_packages:
           <<: *release_filter
           requires:
