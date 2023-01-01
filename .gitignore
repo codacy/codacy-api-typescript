@@ -21,3 +21,4 @@ src/codacyApi.ts
 src/codacyAPIContext.ts
 src/models/
 api-swagger.yaml
+.git/

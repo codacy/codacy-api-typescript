@@ -131,3 +131,4 @@ Codacy is free for Open Source projects.
 
 ## License
 codacy-api-typescript is available under the MIT license. See the LICENSE file for more info.
+test
