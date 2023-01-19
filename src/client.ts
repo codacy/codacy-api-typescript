@@ -20,6 +20,7 @@ export type ErrorType =
   | 'Conflict'
   | 'InternalServerError'
   | 'BadGateway'
+  | 'UnprocessableEntity'
 
 export type ApiErrorUnion =
   | Models.BadRequest
@@ -30,6 +31,7 @@ export type ApiErrorUnion =
   | Models.Conflict
   | Models.InternalServerError
   | Models.BadGateway
+  | Models.UnprocessableEntity
 
 export class BaseApiError extends Error {
   errorType: string
@@ -130,6 +132,14 @@ export class ConflictApiError extends BaseApiError {
   }
 }
 
+export class UnprocessableEntityApiError extends BaseApiError {
+  constructor(error: ApiErrorUnion, response?: HttpOperationResponse, exception?: Error) {
+    super(error, response, exception)
+    this.name = 'UnprocessableEntityApiError'
+    Object.setPrototypeOf(this, UnprocessableEntityApiError.prototype)
+  }
+}
+
 export class InternalServerApiError extends BaseApiError {
   constructor(error: ApiErrorUnion, response?: HttpOperationResponse, exception?: Error) {
     super(error, response, exception)
@@ -201,6 +211,8 @@ class ApiErrorHandlerPolicy extends BaseRequestPolicy {
           throw new NotFoundApiError(exception, result)
         case 'Conflict':
           throw new ConflictApiError(exception, result)
+        case 'UnprocessableEntity':
+          throw new UnprocessableEntityApiError(exception, result)
         case 'InternalServerError':
           throw new InternalServerApiError(exception, result)
         case 'BadGateway':
