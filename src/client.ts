@@ -21,6 +21,7 @@ export type ErrorType =
   | 'InternalServerError'
   | 'BadGateway'
   | 'UnprocessableEntity'
+  | 'MethodNotAllowed'
 
 export type ApiErrorUnion =
   | Models.BadRequest
@@ -32,6 +33,7 @@ export type ApiErrorUnion =
   | Models.InternalServerError
   | Models.BadGateway
   | Models.UnprocessableEntity
+  | Models.MethodNotAllowed
 
 export class BaseApiError extends Error {
   errorType: string
@@ -140,6 +142,14 @@ export class UnprocessableEntityApiError extends BaseApiError {
   }
 }
 
+export class MethodNotAllowedApiError extends BaseApiError {
+  constructor(error: ApiErrorUnion, response?: HttpOperationResponse, exception?: Error) {
+    super(error, response, exception)
+    this.name = 'MethodNotAllowedApiError'
+    Object.setPrototypeOf(this, MethodNotAllowedApiError.prototype)
+  }
+}
+
 export class InternalServerApiError extends BaseApiError {
   constructor(error: ApiErrorUnion, response?: HttpOperationResponse, exception?: Error) {
     super(error, response, exception)
@@ -213,6 +223,8 @@ class ApiErrorHandlerPolicy extends BaseRequestPolicy {
           throw new ConflictApiError(exception, result)
         case 'UnprocessableEntity':
           throw new UnprocessableEntityApiError(exception, result)
+        case 'MethodNotAllowed':
+          throw new MethodNotAllowedApiError(exception, result)
         case 'InternalServerError':
           throw new InternalServerApiError(exception, result)
         case 'BadGateway':
