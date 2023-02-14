@@ -70,5 +70,5 @@
     "sort-package-json": "^1.39.1",
     "typescript": "^3.7.5"
   },
-  "apiVersion": "28.37.2"
+  "apiVersion": "28.37.5"
 }
