@@ -72,7 +72,11 @@ jobs:
             # Update version in packages to publish
             npm version --no-git-tag-version --no-commit-hooks "$(cat .version)"
             # Publish package versions to npmjs.org
-            npm publish
+            if [ "$CIRCLE_BRANCH" = "master" ]; then
+              npm publish
+            else
+              npm publish --tag unstable
+            fi
 
 workflows:
   compile_deploy:
