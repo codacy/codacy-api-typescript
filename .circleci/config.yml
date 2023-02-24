@@ -87,7 +87,7 @@ workflows:
           requires:
             - build_package
       - publish_packages:
-          <<: *release_filter
+          # <<: *release_filter
           requires:
             - tag_version
           context: CodacyNPM
