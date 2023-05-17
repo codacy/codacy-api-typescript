@@ -13,7 +13,7 @@ references:
 jobs:
   build_package:
     docker:
-      - image: circleci/node:erbium
+      - image: cimg/node:20.1.0
     working_directory: ~/workdir
     steps:
       - attach_workspace:
