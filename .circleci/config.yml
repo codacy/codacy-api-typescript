@@ -13,7 +13,7 @@ references:
 jobs:
   build_package:
     docker:
-      - image: cimg/node:20.1.0
+      - image: cimg/node:14.21
     working_directory: ~/workdir
     steps:
       - attach_workspace:
