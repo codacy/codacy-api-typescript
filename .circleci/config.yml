@@ -46,7 +46,7 @@ jobs:
 
   publish_packages:
     docker:
-      - image: circleci/node:erbium
+      - image: cimg/node:14.21
     working_directory: ~/workdir
     steps:
       - attach_workspace:
