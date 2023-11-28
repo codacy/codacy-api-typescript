@@ -176,6 +176,8 @@ class ApiErrorHandlerPolicy extends BaseRequestPolicy {
     let body
     try {
       webResource.headers.set('Csrf-Token', 'nocheck')
+      webResource.headers.set('X-Codacy-Origin', 'frontend')
+
       result = await this._nextPolicy.sendRequest(webResource)
       body = result.parsedBody
     } catch (err) {
