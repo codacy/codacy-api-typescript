@@ -262,7 +262,7 @@ class Client extends CodacyAPI {
   constructor(options?: Omit<Models.CodacyAPIOptions, 'requestPolicyFactories'>) {
     super({
       ...options,
-      requestPolicyFactories: (defaultRequestPolicyFactories) => {
+      requestPolicyFactories: (defaultRequestPolicyFactories: any) => {
         return [apiErrorHandlerPolicyFactory, ...defaultRequestPolicyFactories]
       },
     })
