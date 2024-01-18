@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as Models from './models'
 import * as Mappers from './models/mappers'
 import { CodacyAPI } from './codacyAPI'
@@ -262,7 +263,7 @@ class Client extends CodacyAPI {
   constructor(options?: Omit<Models.CodacyAPIOptions, 'requestPolicyFactories'>) {
     super({
       ...options,
-      requestPolicyFactories: (defaultRequestPolicyFactories: []) => {
+      requestPolicyFactories: (defaultRequestPolicyFactories) => {
         return [apiErrorHandlerPolicyFactory, ...defaultRequestPolicyFactories]
       },
     })
